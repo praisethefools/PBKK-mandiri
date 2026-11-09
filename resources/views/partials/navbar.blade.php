@@ -3,6 +3,7 @@
     $currentRoute = request()->route() ? request()->route()->getName() : '';
     $currentPath = request()->path();
     $toggleUrl = request()->fullUrlWithQuery(['mode' => $isDark ? 'light' : 'dark']);
+    $user = auth()->user();
 @endphp
 
 <header class="border-b transition-colors duration-300 {{ $isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200/90 text-slate-800' }}">
@@ -18,7 +19,7 @@
                         Portal Akademik PBKK
                     </span>
                     <span class="text-[11px] text-slate-500 font-normal block">
-                        Departemen Teknik Informatika
+                        Departemen Teknik Informatika FTEIC
                     </span>
                 </div>
             </a>
@@ -40,10 +41,43 @@
                        class="px-3 py-1.5 rounded-md transition-colors {{ ($currentRoute === 'ide.agent' || $currentPath === 'ide-agent') ? ($isDark ? 'bg-slate-800 text-white font-semibold' : 'bg-slate-100 text-slate-900 font-semibold') : ($isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900') }}">
                         Ide-Riset Agent
                     </a>
+
+                    @auth
+                        @if($user->hasRole(['admin', 'staf', 'dosen']))
+                            <a href="{{ route('admin.dashboard') }}"
+                               class="ml-1 px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors flex items-center gap-1.5 shadow-sm">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                <span>Panel Admin</span>
+                            </a>
+                        @endif
+                    @endauth
                 </nav>
 
                 <!-- Divider pemisah halus -->
                 <div class="h-4 w-px {{ $isDark ? 'bg-slate-700' : 'bg-slate-200' }}"></div>
+
+                <!-- Status Login / Tombol Masuk -->
+                @auth
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-medium hidden md:inline-block {{ $isDark ? 'text-slate-300' : 'text-slate-700' }}">
+                            {{ Str::limit($user->name, 14) }}
+                        </span>
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit"
+                                    class="text-xs px-2.5 py-1 rounded bg-slate-200 hover:bg-red-100 hover:text-red-700 text-slate-700 transition-colors">
+                                Keluar
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}"
+                       class="text-xs px-3 py-1.5 rounded-md font-medium transition-colors {{ $isDark ? 'bg-slate-800 text-slate-200 hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                        Masuk
+                    </a>
+                @endauth
 
                 <!-- Animated Toggle Switch Button -->
                 <a href="{{ $toggleUrl }}"
